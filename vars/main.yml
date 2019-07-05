@@ -2,5 +2,5 @@
 install_packages:
   - 'cryptsetup'
   - 'nagios-plugins-basic'      # monitor storage
-restart_services:
-  - 'cryptdisks'
+#restart_services:
+#  - 'cryptdisks'
