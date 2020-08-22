@@ -1,6 +1,15 @@
 ---
 # The backing device doesn't get overwritten by random data.  Right here would
 # be the place to do that, if desired.
+- name:                         'unmount volume(s)'
+  shell:                        if ! mount | grep -q "^{{ item.backing_device }} "; then true; else false; fi || { echo 'changed' && umount {{ item.backing_device }}; }
+  with_items:                   "{{ encrypted_storage }}"
+  register:                     encrypted_storage_unmount_result
+  changed_when:                 encrypted_storage_unmount_result.stdout.find('changed') != -1
+- name:                         'get pass phrase'
+  shell:                        /usr/local/bin/p
+  args:
+    creates:                    "/home/{{ e_user }}/storage_pass_phrase/pass_phrase.txt"
 - name:                         'format volume(s) for LUKS'
   shell:                        cryptsetup luksUUID {{ item.backing_device }} || { echo 'changed' && cryptsetup luksFormat --key-file {{ item.password_path }} {{ item.backing_device }}; }
   with_items:                   "{{ encrypted_storage }}"
@@ -12,8 +21,7 @@
     creates:                    "/dev/mapper/{{ item.name }}"
   with_items:                   "{{ encrypted_storage }}"
   register:                     encrypted_storage_creation_result 
-
-- name:                         "configure name and mount point for LUKS volume"
+- name:                         "configure name and backing device for LUKS volume"
   crypttab:
     backing_device:             "{{ item.backing_device }}"
     name:                       "{{ item.name }}"
