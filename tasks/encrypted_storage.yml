@@ -1,4 +1,5 @@
 ---
+- include_vars:                 '../roles/escrow/vars/storage_password_path.yml'
 # The backing device doesn't get overwritten by random data.  Right here would
 # be the place to do that, if desired.
 - name:                         'unmount volume(s)'
@@ -9,14 +10,14 @@
 - name:                         'get pass phrase'
   shell:                        /usr/local/bin/p
   args:
-    creates:                    "/home/{{ e_user }}/storage_pass_phrase/pass_phrase.txt"
+    creates:                    "/home/{{ escrow_user }}/storage_pass_phrase/pass_phrase.txt"
 - name:                         'format volume(s) for LUKS'
-  shell:                        cryptsetup luksUUID {{ item.backing_device }} || { echo 'changed' && cryptsetup luksFormat --key-file {{ item.password_path }} {{ item.backing_device }}; }
+  shell:                        cryptsetup luksUUID {{ item.backing_device }} || { echo 'changed' && cryptsetup luksFormat --key-file {{ storage_password_path }} {{ item.backing_device }}; }
   with_items:                   "{{ encrypted_storage }}"
   register:                     encrypted_storage_creation_result
   changed_when:                 encrypted_storage_creation_result.stdout.find('changed') != -1
 - name:                         'open LUKS volume(s)'
-  shell:                        cryptsetup luksOpen --key-file {{ item.password_path }} {{ item.backing_device }} {{ item.name }}
+  shell:                        cryptsetup luksOpen --key-file {{ storage_password_path }} {{ item.backing_device }} {{ item.name }}
   args:
     creates:                    "/dev/mapper/{{ item.name }}"
   with_items:                   "{{ encrypted_storage }}"
@@ -25,8 +26,25 @@
   crypttab:
     backing_device:             "{{ item.backing_device }}"
     name:                       "{{ item.name }}"
-    password:                   "{{ item.password_path }}"
+    password:                   "{{ storage_password_path }}"
     state:                      'present'
     opts:                       'luks'
   with_items:                   "{{ encrypted_storage }}"
   register:                     encrypted_storage_configuration_result
+- name:                         "configure filesystem"
+  include:                      '../tasks/filesystems.yml'
+  vars:
+    filesystems:
+      - dev:                    "/dev/mapper/{{ item.name }}"
+        fstype:                 "{{ item.fstype }}"
+  with_items:                   "{{ encrypted_storage }}"
+- name:                         "configure mount point"
+  include:                      '../tasks/mount.yml'
+  vars:
+    mount:
+      - name:                   "{{ item.mount_point}}"
+        fstype:                 "{{ item.fstype }}"
+        opts:                   "{{ item.mount_options }}"
+        src:                    "/dev/mapper/{{ item.name }}"
+        state:                  'mounted'
+  with_items:                   "{{ encrypted_storage }}"
