@@ -1,5 +1,7 @@
 ---
 dependencies:
+  - role:       'dns_client'
+    when:       skipdeps is not defined
   - role:       'hostname'
     when:       skipdeps is not defined
   - role:       'escrow'
