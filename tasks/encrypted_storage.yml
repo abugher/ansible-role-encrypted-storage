@@ -22,15 +22,20 @@
     creates:                    "/dev/mapper/{{ item.name }}"
   with_items:                   "{{ encrypted_storage }}"
   register:                     encrypted_storage_creation_result 
-- name:                         "configure name and backing device for LUKS volume"
-  crypttab:
-    backing_device:             "{{ item.backing_device }}"
-    name:                       "{{ item.name }}"
-    password:                   "{{ storage_password_path }}"
-    state:                      'present'
-    opts:                       'luks'
-  with_items:                   "{{ encrypted_storage }}"
-  register:                     encrypted_storage_configuration_result
+# This is not necessary, and can be harmful.  I believe when crypttab is in
+# place and update-initramfs is run the system will then hang on the next boot
+# waiting for input from the (non-existent) console user to unlock the
+# (non-system) disk.  Commenting this block fixed it.  I am leaving it as a
+# warning.
+#- name:                         "configure name and backing device for LUKS volume"
+#  crypttab:
+#    backing_device:             "{{ item.backing_device }}"
+#    name:                       "{{ item.name }}"
+#    password:                   "{{ storage_password_path }}"
+#    state:                      'present'
+#    opts:                       'luks'
+#  with_items:                   "{{ encrypted_storage }}"
+#  register:                     encrypted_storage_configuration_result
 - name:                         "configure filesystem"
   include:                      '../tasks/filesystems.yml'
   vars:
