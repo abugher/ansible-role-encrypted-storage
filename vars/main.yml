@@ -1,4 +1,8 @@
 ---
+dependencies:
+  - 'dns_client'
+  - 'hostname'
+  - 'escrow'
 install_packages:
   - 'cryptsetup'
   - 'nagios-plugins-basic'      # monitor storage
