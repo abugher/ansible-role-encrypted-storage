@@ -1,6 +1,6 @@
 ---
 dependencies:
-  - 'dns_client'
+  - 'dns-client'
   - 'hostname'
   - 'escrow'
 install_packages:
