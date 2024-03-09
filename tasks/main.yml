@@ -1,8 +1,8 @@
 ---
-- include:              '../tasks/dependencies.yml'
-- include:              '../tasks/install_packages.yml'
-- include:              '../tasks/reboot.yml'
+- include_tasks:        '../tasks/dependencies.yml'
+- include_tasks:        '../tasks/install_packages.yml'
+- include_tasks:        '../tasks/reboot.yml'
   when:                 install_packages_result.changed
-- include:              'tasks/encrypted_storage.yml'
-#- include:              '../tasks/restart_services.yml'
+- include_tasks:        'tasks/encrypted_storage.yml'
+#- include_tasks:        '../tasks/restart_services.yml'
 #  when:                 encrypted_storage_configuration_result.changed
