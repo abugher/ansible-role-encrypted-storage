@@ -37,14 +37,14 @@
 #  with_items:                   "{{ encrypted_storage }}"
 #  register:                     encrypted_storage_configuration_result
 - name:                         "configure filesystem"
-  include:                      '../tasks/filesystems.yml'
+  include_tasks:                '../tasks/filesystems.yml'
   vars:
     filesystems:
       - dev:                    "/dev/mapper/{{ item.name }}"
         fstype:                 "{{ item.fstype }}"
   with_items:                   "{{ encrypted_storage }}"
 - name:                         "configure mount point"
-  include:                      '../tasks/mount.yml'
+  include_tasks:                '../tasks/mount.yml'
   vars:
     mount:
       - name:                   "{{ item.mount_point}}"
