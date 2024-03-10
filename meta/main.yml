@@ -1,0 +1,11 @@
+---
+dependencies:
+  - role:     'dns-client'
+    tags:     
+      - 'dependency'
+  - role:     'hostname'
+    tags:     
+      - 'dependency'
+  - role:     'escrow'
+    tags:     
+      - 'dependency'
