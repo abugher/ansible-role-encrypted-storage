@@ -1,5 +1,5 @@
 ---
-- include_vars:                 '../roles/escrow/vars/storage_password_path.yml'
+- include_vars:                 "..//escrow/vars/storage_password_path.yml"
 # The backing device doesn't get overwritten by random data.  Right here would
 # be the place to do that, if desired.
 - name:                         'unmount volume(s)'
